@@ -20,7 +20,7 @@ return new class extends Migration
             $table->string('path');
             $table->integer('size');
             $table->boolean('favorite')->default(false);
-            $table->softDeletes(); // Soft delete column
+            $table->softDeletes(); 
             $table->timestamps();
         });
     }
