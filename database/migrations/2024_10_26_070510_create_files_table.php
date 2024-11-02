@@ -18,8 +18,9 @@ return new class extends Migration
             $table->foreignId('department_id')->constrained('departments')->onDelete('cascade');
             $table->string('name');
             $table->string('path');
+            $table->string('type');
             $table->integer('size');
-            $table->boolean('favorite')->default(false);
+            $table->boolean('is_favorite')->default(false);
             $table->softDeletes(); 
             $table->timestamps();
         });

@@ -20,9 +20,9 @@ class User extends Authenticatable
         'pegawai_id',
     ];
 
-    public function department()
+    public function pegawai()
     {
-        return $this->belongsTo(Department::class);
+        return $this->belongsTo(Pegawai::class);
     }
     
     protected $hidden = [

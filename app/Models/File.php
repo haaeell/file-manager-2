@@ -16,6 +16,7 @@ class File extends Model
         'department_id',
         'name',
         'path',
+        'type',
         'size',
         'favorite',
     ];

@@ -14,8 +14,8 @@ class FoldersTableSeeder extends Seeder
     public function run(): void
     {
         DB::table('folders')->insert([
-            ['user_id' => 1, 'department_id' => 1, 'name' => 'Reports', 'parent_id' => null],
-            ['user_id' => 2, 'department_id' => 2, 'name' => 'Training', 'parent_id' => null],
+            ['user_id' => 1, 'department_id' => 1, 'name' => 'Reports', 'parent_id' => null, 'is_favorite' => true],
+            ['user_id' => 2, 'department_id' => 2, 'name' => 'Training', 'parent_id' => null, 'is_favorite' => false],
         ]);
     }
 }

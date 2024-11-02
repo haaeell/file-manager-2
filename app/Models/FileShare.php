@@ -9,15 +9,17 @@ class FileShare extends Model
 {
     use HasFactory;
 
-    protected $fillable = [
-        'file_id',
-        'shared_with_id',
-        'permission',
-    ];
+    protected $table = 'file_share';
+    protected $fillable = ['file_id', 'folder_id', 'shared_with_id', 'permission'];
 
     public function file()
     {
         return $this->belongsTo(File::class);
+    }
+
+    public function folder()
+    {
+        return $this->belongsTo(Folder::class);
     }
 
     public function sharedWith()

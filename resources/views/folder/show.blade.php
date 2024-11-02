@@ -1,13 +1,30 @@
 @extends('layouts.dashboard')
-@section('title', 'My Files')
+@section('title', $folder->name)
 
 @section('content')
+    <!-- Struktur HTML konten mirip dengan halaman home -->
     <div class="row justify-content-center">
         <div class="col-md-12">
             <div class="card">
-                <div class="card-header">{{ __('Dashboard') }}</div>
-
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <!-- Breadcrumb -->
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="/">My Files</a></li>
+                            @foreach ($breadcrumbs as $breadcrumb)
+                                <li class="breadcrumb-item">
+                                    <a
+                                        href="{{ route('showFolder', ['id' => $breadcrumb->id]) }}">{{ $breadcrumb->name }}</a>
+                                </li>
+                            @endforeach
+                        </ol>
+                    </nav>
+                    <!-- Tombol kembali -->
+                    <a href="{{ $folder->parent_id ? route('showFolder', ['id' => $folder->parent_id]) : '/' }}"
+                        class="btn btn-secondary"><i class="bi bi-arrow-left"></i> Back</a>
+                </div>
                 <div class="card-body">
+                    <!-- Tombol Tambah, Share, Download, Delete -->
                     <div class="d-flex gap-2 justify-content-between">
                         <div>
                             <button class="btn btn-primary fw-bold text-white" data-bs-toggle="modal"
@@ -17,13 +34,12 @@
                         </div>
                         <div>
                             <button class="btn btn-info fw-bold text-white"><i class="bi bi-folder"></i> Share</button>
-                            <button id="downloadBtn" class="btn btn-success fw-bold text-white">
-                                <i class="bi bi-download"></i> Download
-                            </button>
-                            <button class="btn btn-danger btn-delete fw-bold text-white"><i class="bi bi-trash"></i>
-                                Delete</button>
+                            <button class="btn btn-success fw-bold text-white"><i class="bi bi-download"></i>
+                                Download</button>
+                            <button class="btn btn-danger fw-bold text-white"><i class="bi bi-trash"></i> Delete</button>
                         </div>
                     </div>
+                    <!-- Table Files & Folders -->
                     <table class="table">
                         <thead>
                             <tr>
@@ -35,7 +51,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach ($folders as $folder)
+                            @foreach ($subfolders as $folder)
                                 <tr class="folder-row-select" data-id="{{ $folder->id }}">
                                     <th>
                                         <div class="d-flex align-items-center gap-2">
@@ -44,15 +60,14 @@
                                             <a href="#" class="toggle-favorite" data-id="{{ $folder->id }}"
                                                 data-type="folder">
                                                 <i
-                                                    class="bi {{ $folder->is_favorite ? 'bi-star-fill text-warning' : 'bi-star text-muted' }}">
-                                                </i>
+                                                    class="bi {{ $folder->is_favorite ? 'bi-star-fill text-warning' : 'bi-star text-muted' }}"></i>
                                             </a>
                                             <a href="#"><i class="bi bi-pencil-fill text-primary rename-icon"
                                                     data-id="{{ $folder->id }}" data-type="folder"></i></a>
                                         </div>
                                     </th>
-                                    <td><i class="bi bi-folder-fill"></i> 
-                                        <a href="{{ route('showFolder', ['id' => $folder->id]) }}">{{ $folder->name }}</a>
+                                    <td><i class="bi bi-folder-fill"></i> <a
+                                            href="{{ route('showFolder', ['id' => $folder->id]) }}">{{ $folder->name }}</a>
                                     </td>
                                     <td><span class="badge bg-success">Folder</span></td>
                                     <td>-</td>
@@ -67,19 +82,14 @@
                                                 data-id="{{ $file->id }}">
                                             <a href="#" class="toggle-favorite" data-id="{{ $file->id }}"
                                                 data-type="file">
-                                                <i class="bi {{ $file->is_favorite ? 'bi-star-fill text-warning' : 'bi-star text-muted' }}"></i>
+                                                <i
+                                                    class="bi {{ $file->is_favorite ? 'bi-star-fill text-warning' : 'bi-star text-muted' }}"></i>
                                             </a>
                                             <a href="#"><i class="bi bi-pencil-fill text-primary rename-icon"
                                                     data-id="{{ $file->id }}" data-type="file"></i></a>
                                         </div>
                                     </th>
-                                    <td>
-                                        <i class="bi bi-file-earmark"></i> <a href="#" class="file-row"
-                                            data-name="{{ $file->name }}"
-                                            data-size="{{ number_format($file->size / 1024, 2) }} KB"
-                                            data-type="{{ $file->type }}"
-                                            data-url="{{ asset($file->path) }}">{{ $file->name }}</a>
-                                    </td>
+                                    <td><i class="bi bi-file-earmark"></i> <a href="#">{{ $file->name }}</a></td>
                                     <td><span class="badge bg-info">File</span></td>
                                     <td>{{ number_format($file->size / 1024, 2) }} KB</td>
                                     <td>{{ $file->created_at }}</td>
@@ -91,7 +101,9 @@
             </div>
         </div>
     </div>
-    @include('partials.add_folder_file_modal', ['folder_id' => null])
+
+    <!-- Modal Tambah Folder/File & Share -->
+    @include('partials.add_folder_file_modal', ['folder_id' => $folder->id])
     @include('partials.rename_modal')
     @include('partials.show_file_modal')
 
@@ -120,7 +132,6 @@
             </div>
         </div>
     </div>
-
 @endsection
 
 @section('scripts')

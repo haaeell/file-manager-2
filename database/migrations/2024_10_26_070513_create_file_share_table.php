@@ -13,7 +13,8 @@ return new class extends Migration
     {
         Schema::create('file_share', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('file_id')->constrained('files')->onDelete('cascade');
+            $table->foreignId('file_id')->nullable()->constrained('files')->onDelete('cascade');
+            $table->foreignId('folder_id')->nullable()->constrained('folders')->onDelete('cascade');
             $table->foreignId('shared_with_id')->constrained('users')->onDelete('cascade');
             $table->enum('permission', ['view', 'edit'])->default('view');
             $table->timestamps();

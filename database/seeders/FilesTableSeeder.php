@@ -14,8 +14,8 @@ class FilesTableSeeder extends Seeder
     public function run(): void
     {
         DB::table('files')->insert([
-            ['user_id' => 1, 'department_id' => 1, 'name' => 'Project Plan', 'path' => '/files/project_plan.pdf', 'size' => 2048, 'favorite' => false],
-            ['user_id' => 2, 'department_id' => 2, 'name' => 'Employee Handbook', 'path' => '/files/employee_handbook.pdf', 'size' => 1024, 'favorite' => true],
+            ['user_id' => 1, 'department_id' => 1, 'name' => 'Project Plan', 'type' => 'images' ,'path' => '/files/project_plan.pdf', 'size' => 2048, 'is_favorite' => false],
+            ['user_id' => 2, 'department_id' => 2, 'name' => 'Employee Handbook', 'type' => 'images', 'path' => '/files/employee_handbook.pdf', 'size' => 1024, 'is_favorite' => true],
         ]);
     }
 }

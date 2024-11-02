@@ -9,6 +9,7 @@ class Pegawai extends Model
 {
     use HasFactory;
 
+    protected $table = 'pegawai';
     protected $fillable = [
         'name',
         'department_id',

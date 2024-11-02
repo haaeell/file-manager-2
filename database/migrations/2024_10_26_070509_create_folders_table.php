@@ -17,6 +17,8 @@ return new class extends Migration
             $table->foreignId('department_id')->constrained('departments')->onDelete('cascade');
             $table->string('name');
             $table->foreignId('parent_id')->nullable()->constrained('folders')->onDelete('cascade');
+            $table->boolean('is_favorite')->default(false);
+            $table->softDeletes();
             $table->timestamps();
         });
     }
