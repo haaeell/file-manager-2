@@ -16,8 +16,8 @@
                 <div class="card border-0"
                     style="border-radius: 18px; box-shadow:  20px 20px 60px #bebebe,
                 -20px -20px 60px #ffffff;">
-                    <div class="py-3">
-                        <h3 class="fw-semibold text-center">Login</h3>
+                    <div class="py-3 text-center">
+                        <img src="{{ asset('assets') }}/img/logo.jpeg" alt="Logo">
                     </div>
                     <div class="card-body">
                         @if (session('success'))
@@ -61,10 +61,10 @@
                                             <strong>{{ $message }}</strong>
                                         </span>
                                     @enderror
-                                    <p class="text-end small">
+                                    {{-- <p class="text-end small">
                                         <a href="{{ route('password.request') }}" class="nav-link mt-3">Forgot
                                             password?</a>
-                                    </p>
+                                    </p> --}}
                                 </div>
                             </div>
 

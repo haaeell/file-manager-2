@@ -14,7 +14,6 @@
                                 <th>#</th>
                                 <th>Name</th>
                                 <th>Type</th>
-                                <th>Permission</th>
                                 <th>Shared At</th>
                             </tr>
                         </thead>
@@ -38,8 +37,8 @@
                                                 data-type="{{ $item->file->type }}"
                                                 data-url="{{ asset($item->file->path) }}">{{ $item->file->name }}</a>
                                         @elseif ($item->folder)
-                                            <i class="bi bi-folder-fill"></i> <a
-                                                href="{{ route('showFolder', ['id' => $item->folder->id]) }}">{{ $item->folder->name }}</a>
+                                            <i class="bi bi-folder-fill"></i>
+                                             <a href="{{ route('showFolder', ['id' => $item->folder->id]) }}">{{ $item->folder->name }}</a>
                                         @endif
                                     </td>
                                     <td>
@@ -49,8 +48,7 @@
                                             <span class="badge bg-warning">Folder</span>
                                         @endif
                                     </td>
-                                    <td>{{ ucfirst($item->permission) }}</td>
-                                    <td>{{ $item->created_at->format('d M Y, H:i') }}</td>
+                                    <td>{{ \Carbon\Carbon::parse($item->created_at)->format('d F Y, H:i') }}</td>
                                 </tr>
                             @endforeach
                         </tbody>

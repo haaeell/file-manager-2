@@ -1,9 +1,12 @@
 <?php
 
+use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\FileController;
 use App\Http\Controllers\FileManagerController;
 use App\Http\Controllers\FolderController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\UserManagementController;
+use App\Http\Controllers\UserProfileController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -41,4 +44,19 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/trash', [HomeController::class, 'trash'])->name('trash');
     Route::post('/trash/restore', [HomeController::class, 'restoreItem'])->name('trash.restore');
     Route::post('/trash/delete', [HomeController::class, 'deleteItemPermanently'])->name('trash.delete');
+
+    Route::get('/search', [HomeController::class, 'search']);
+    Route::post('/notifications/mark-as-read', [HomeController::class, 'markAsRead'])->name('notifications.markAsRead');
+    Route::resource('departments', DepartmentController::class);
+
+    Route::get('/user-management', [UserManagementController::class, 'index'])->name('userManagement');
+    Route::get('/user-management/create', [UserManagementController::class, 'create'])->name('userManagement.create');
+    Route::post('/user-management/store', [UserManagementController::class, 'store'])->name('userManagement.store');
+    Route::get('/user-management/{id}/edit', [UserManagementController::class, 'edit'])->name('userManagement.edit');
+    Route::put('/user-management/{id}', [UserManagementController::class, 'update'])->name('userManagement.update');
+    Route::delete('/user-management/{id}', [UserManagementController::class, 'destroy'])->name('userManagement.destroy');
+
+    Route::get('/profile', [UserProfileController::class, 'edit'])->name('profile.edit')->middleware('auth');
+    Route::post('/profile', [UserProfileController::class, 'update'])->name('profile.update')->middleware('auth');
+    Route::post('/profile/password', [UserProfileController::class, 'updatePassword'])->name('profile.updatePassword')->middleware('auth');
 });

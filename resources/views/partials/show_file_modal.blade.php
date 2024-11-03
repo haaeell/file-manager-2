@@ -57,24 +57,28 @@
         const fileSize = $(this).data('size');
         const fileType = $(this).data('type');
         const fileUrl = $(this).data('url');
-        
+
         $('#modalFileInfo').text(`Name: ${fileName}, Size: ${fileSize}`);
 
         if (fileType.startsWith('image/')) {
-            $('#modalImage').attr('src', fileUrl).show();
-            $('#modalPdf').hide();
+            $('#modalImage').attr('src', fileUrl);
             $('#modalFilePreviewImg').show();
+            $('#modalPdf').hide();
             $('#modalFilePreviewPdf').hide();
+            $('#filePreviewModal').modal('show');
         } else if (fileType === 'application/pdf') {
-            $('#modalPdf').attr('src', fileUrl).show();
+            $('#modalPdf').attr('src', fileUrl);
+            $('#modalFilePreviewPdf').show();
             $('#modalImage').hide();
             $('#modalFilePreviewImg').hide();
-            $('#modalFilePreviewPdf').show();
+            $('#filePreviewModal').modal('show');
         } else {
-            $('#modalFilePreviewImg').hide();
-            $('#modalFilePreviewPdf').hide();
+            const a = document.createElement('a');
+            a.href = fileUrl;
+            a.download = fileName;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
         }
-
-        $('#filePreviewModal').modal('show');
     });
 </script>

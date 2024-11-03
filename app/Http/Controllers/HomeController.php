@@ -20,7 +20,7 @@ class HomeController extends Controller
         $userId = auth()->id();
         $folders = Folder::where('user_id', Auth::user()->id)->where('parent_id', null)->get();
 
-        $files = File::where('user_id', $userId)->get();
+        $files = File::where('user_id', $userId)->where('folder_id', null)->get();
         $users = User::with('pegawai')->get();
 
         return view('home', compact('folders', 'files', 'users'));
@@ -37,7 +37,7 @@ class HomeController extends Controller
                 $query->where('user_id', $userId);
             })
             ->get();
-            
+
         return view('shared_by_me', compact('sharedItems'));
     }
 
@@ -84,5 +84,50 @@ class HomeController extends Controller
         }
 
         return response()->json(['success' => true, 'message' => 'Item deleted permanently.']);
+    }
+
+    public function search(Request $request)
+    {
+        $query = $request->input('search');
+        $userId = Auth::id();
+
+        $fileResults = File::where('user_id', $userId)
+            ->where(function ($q) use ($query) {
+                $q->where('name', 'LIKE', '%' . $query . '%')
+                    ->orWhere('type', 'LIKE', '%' . $query . '%');
+            })
+            ->get(['id', 'name', 'type', 'user_id', 'path']);
+
+        $folderResults = Folder::where('user_id', $userId)
+            ->where('name', 'LIKE', '%' . $query . '%')
+            ->get(['id', 'name', 'user_id']);
+
+        $sharedFiles = FileShare::with('file')
+            ->where('shared_with_id', $userId)
+            ->whereHas('file', function ($q) use ($query) {
+                $q->where('name', 'LIKE', '%' . $query . '%');
+            })
+            ->get()
+            ->pluck('file');
+
+        $sharedFolders = FileShare::with('folder')
+            ->where('shared_with_id', $userId)
+            ->whereHas('folder', function ($q) use ($query) {
+                $q->where('name', 'LIKE', '%' . $query . '%');
+            })
+            ->get()
+            ->pluck('folder');
+
+        $results = $fileResults->merge($folderResults)->merge($sharedFiles)->merge($sharedFolders);
+
+        return response()->json($results);
+    }
+
+    public function markAsRead(Request $request)
+    {
+        $user = Auth::user();
+        $user->unreadNotifications->markAsRead();
+
+        return response()->json(['success' => true]);
     }
 }

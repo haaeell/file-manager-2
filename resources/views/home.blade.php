@@ -56,7 +56,7 @@
                                     </td>
                                     <td><span class="badge bg-success">Folder</span></td>
                                     <td>-</td>
-                                    <td>{{ $folder->created_at }}</td>
+                                    <td>{{ \Carbon\Carbon::parse($folder->created_at)->format('d F Y, H:i') }}</td>
                                 </tr>
                             @endforeach
                             @foreach ($files as $file)
@@ -82,7 +82,7 @@
                                     </td>
                                     <td><span class="badge bg-info">File</span></td>
                                     <td>{{ number_format($file->size / 1024, 2) }} KB</td>
-                                    <td>{{ $file->created_at }}</td>
+                                    <td>{{ \Carbon\Carbon::parse($file->created_at)->format('d F Y, H:i') }}</td>
                                 </tr>
                             @endforeach
                         </tbody>

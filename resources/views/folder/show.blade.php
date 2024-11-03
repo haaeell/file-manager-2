@@ -19,9 +19,6 @@
                             @endforeach
                         </ol>
                     </nav>
-                    <!-- Tombol kembali -->
-                    <a href="{{ $folder->parent_id ? route('showFolder', ['id' => $folder->parent_id]) : '/' }}"
-                        class="btn btn-secondary"><i class="bi bi-arrow-left"></i> Back</a>
                 </div>
                 <div class="card-body">
                     <!-- Tombol Tambah, Share, Download, Delete -->
@@ -89,10 +86,15 @@
                                                     data-id="{{ $file->id }}" data-type="file"></i></a>
                                         </div>
                                     </th>
-                                    <td><i class="bi bi-file-earmark"></i> <a href="#">{{ $file->name }}</a></td>
-                                    <td><span class="badge bg-info">File</span></td>
+                                    <td><i class="bi bi-file-earmark"></i>
+                                        <a href="#" class="file-row" data-name="{{ $file->name }}"
+                                            data-size="{{ number_format($file->size / 1024, 2) }} KB"
+                                            data-type="{{ $file->type }}"
+                                            data-url="{{ asset($file->path) }}">{{ $file->name }}</a>
+                                    </td>
+                                    <td>{{ $file->type }}</td>
                                     <td>{{ number_format($file->size / 1024, 2) }} KB</td>
-                                    <td>{{ $file->created_at }}</td>
+                                    <td>{{  \Carbon\Carbon::parse($file->created_at)->format('d F Y, H:i')}}</td>
                                 </tr>
                             @endforeach
                         </tbody>

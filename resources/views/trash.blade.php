@@ -22,16 +22,22 @@
                             @if ($deletedFiles && count($deletedFiles) > 0)
                                 @foreach ($deletedFiles as $file)
                                     <tr>
-                                        <td>{{ $file->name }}</td>
-                                        <td>File</td>
-                                        <td>{{ $file->deleted_at }}</td>
+                                        <td> <i class="bi bi-file-earmark"></i>
+                                            <a href="#" class="file-row"
+                                                data-name="{{ $file->name }}"
+                                                data-size="{{ number_format($file->size / 1024, 2) }} KB"
+                                                data-type="{{ $file->type }}"
+                                                data-url="{{ asset($file->path) }}">{{ $file->name }}</a>
+                                        </td>
+                                        <td>{{ $file->type }}</td>
+                                        <td>{{ \Carbon\Carbon::parse($file->deleted_at)->format('d F Y, H:i') }}</td>
                                         <td>
-                                            <button class="btn btn-success btn-restore" data-id="{{ $file->id }}"
+                                            <button class="btn btn-success btn-sm btn-restore" data-id="{{ $file->id }}"
                                                 data-type="file">
                                                 Restore
                                             </button>
-                                            <button class="btn btn-danger btn-delete-permanent" data-id="{{ $file->id }}"
-                                                data-type="file">
+                                            <button class="btn btn-danger btn-sm rounded-2 btn-delete-permanent"
+                                                data-id="{{ $file->id }}" data-type="file">
                                                 Delete Permanently
                                             </button>
                                         </td>
@@ -66,11 +72,11 @@
                                         <td>Folder</td>
                                         <td>{{ $folder->deleted_at }}</td>
                                         <td>
-                                            <button class="btn btn-success btn-restore" data-id="{{ $folder->id }}"
+                                            <button class="btn btn-success btn-sm btn-restore" data-id="{{ $folder->id }}"
                                                 data-type="folder">
                                                 Restore
                                             </button>
-                                            <button class="btn btn-danger btn-delete-permanent"
+                                            <button class="btn btn-danger btn-sm btn-delete-permanent"
                                                 data-id="{{ $folder->id }}" data-type="folder">
                                                 Delete Permanently
                                             </button>
@@ -88,6 +94,8 @@
             </div>
         </div>
     </div>
+    
+    @include('partials.show_file_modal')
 @endsection
 
 @section('scripts')

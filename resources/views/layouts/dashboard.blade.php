@@ -35,6 +35,20 @@
         height: 100%;
         border-radius: 5px;
     }
+
+    .search-bar {
+        max-width: 300px;
+        margin-right: 10px;
+    }
+
+    #searchResults {
+        max-height: 200px;
+        overflow-y: auto;
+    }
+
+    .list-group-item {
+        cursor: pointer;
+    }
 </style>
 
 <body>
@@ -115,14 +129,40 @@
                                 <span>Trash</span>
                             </a>
                         </li>
+
+                        @if (Auth::user()->role == 'admin')
+                            <li class="sidebar-item {{ request()->routeIs('departments.*') ? 'active' : '' }}">
+                                <a href="{{ route('departments.index') }}" class="sidebar-link">
+                                    <i class="bi bi-building"></i>
+                                    <span>Departments</span>
+                                </a>
+                            </li>
+
+                            <li class="sidebar-item {{ request()->routeIs('userManagement') ? 'active' : '' }}">
+                                <a href="{{ route('userManagement') }}" class="sidebar-link">
+                                    <i class="bi bi-people-fill"></i>
+                                    <span>User Management</span>
+                                </a>
+                            </li>
+                        @endif
                     </ul>
-                    <div class="ram-usage">
-                        <h6>RAM Usage</h6>
-                        <div class="progress">
-                            <div id="ramProgressBar" class="progress-bar" role="progressbar" style="width: 0%;"
-                                aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">0 MB</div>
+                    @if (Auth::user()->role != 'admin')
+                        <div class="disk-usage mx-4 mt-5">
+                            <h6>Disk Space Usage</h6>
+                            @php
+                                $user = Auth::user();
+                                $usedSpace = $user->calculateDiskSpace();
+                                $maxSpace = $user->disk_space;
+                                $usagePercentage = $maxSpace > 0 ? ($usedSpace / $maxSpace) * 100 : 0;
+                            @endphp
+                            <div class="progress">
+                                <div class="progress-bar" role="progressbar" style="width: {{ $usagePercentage }}%;"
+                                    aria-valuenow="{{ $usagePercentage }}" aria-valuemin="0" aria-valuemax="100">
+                                    {{ number_format($usedSpace, 2) }} MB / {{ number_format($maxSpace, 2) }} MB
+                                </div>
+                            </div>
                         </div>
-                    </div>
+                    @endif
                 </div>
             </div>
         </div>
@@ -133,6 +173,14 @@
                         <a href="#" class="burger-btn d-block">
                             <i class="bi bi-justify fs-3"></i>
                         </a>
+                        <div class="search-bar ms-auto me-3 position-relative">
+                            <input type="text" id="searchInput" class="form-control"
+                                placeholder="Search files or folders...">
+                            <div id="searchResults" class="position-absolute w-100 bg-white border"
+                                style="z-index: 1000; display: none;">
+                                <ul class="list-group" id="resultsList"></ul>
+                            </div>
+                        </div>
 
                         <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
                             data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
@@ -140,49 +188,46 @@
                             <span class="navbar-toggler-icon"></span>
                         </button>
                         <div class="collapse navbar-collapse" id="navbarSupportedContent">
+
                             <ul class="navbar-nav ms-auto mb-lg-0">
                                 <li class="nav-item dropdown me-3">
                                     <a class="nav-link active dropdown-toggle text-gray-600" href="#"
                                         data-bs-toggle="dropdown" data-bs-display="static" aria-expanded="false">
                                         <i class='bi bi-bell bi-sub fs-4'></i>
-                                        <span class="badge badge-notification bg-danger">7</span>
+                                        @if (Auth::user()->unreadNotifications->count() > 0)
+                                            <span class="badge badge-notification bg-danger">
+                                                {{ Auth::user()->unreadNotifications->count() }}
+                                            </span>
+                                        @endif
                                     </a>
-                                    <ul class="dropdown-menu dropdown-center  dropdown-menu-sm-end notification-dropdown"
+                                    <ul class="dropdown-menu dropdown-center dropdown-menu-sm-end notification-dropdown"
                                         aria-labelledby="dropdownMenuButton">
                                         <li class="dropdown-header">
                                             <h6>Notifications</h6>
                                         </li>
-                                        <li class="dropdown-item notification-item">
-                                            <a class="d-flex align-items-center" href="#">
-                                                <div class="notification-icon bg-primary">
-                                                    <i class="bi bi-cart-check"></i>
-                                                </div>
-                                                <div class="notification-text ms-4">
-                                                    <p class="notification-title font-bold">Successfully check out</p>
-                                                    <p class="notification-subtitle font-thin text-sm">Order ID #256
-                                                    </p>
-                                                </div>
-                                            </a>
-                                        </li>
-                                        <li class="dropdown-item notification-item">
-                                            <a class="d-flex align-items-center" href="#">
-                                                <div class="notification-icon bg-success">
-                                                    <i class="bi bi-file-earmark-check"></i>
-                                                </div>
-                                                <div class="notification-text ms-4">
-                                                    <p class="notification-title font-bold">Homework submitted</p>
-                                                    <p class="notification-subtitle font-thin text-sm">Algebra math
-                                                        homework</p>
-                                                </div>
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <p class="text-center py-2 mb-0"><a href="#">See all
-                                                    notification</a></p>
-                                        </li>
+                                        @forelse (Auth::user()->unreadNotifications as $notification)
+                                            <li class="dropdown-item notification-item">
+                                                <a class="d-flex align-items-center" href="/shared-with-me">
+                                                    <div class="notification-icon bg-primary">
+                                                        <i class="bi bi-share"></i>
+                                                    </div>
+                                                    <div class="notification-text ms-4">
+                                                        <p class="notification-title font-bold">
+                                                            {{ $notification->data['message'] }}</p>
+                                                        <small
+                                                            class="text-muted">{{ $notification->created_at->diffForHumans() }}</small>
+                                                    </div>
+                                                </a>
+                                            </li>
+                                        @empty
+                                            <li class="dropdown-item text-center">
+                                                <p class="text-muted">No new notifications</p>
+                                            </li>
+                                        @endforelse
                                     </ul>
                                 </li>
                             </ul>
+
                             <div class="dropdown">
                                 <a href="#" data-bs-toggle="dropdown" aria-expanded="false">
                                     <div class="user-menu d-flex">
@@ -192,7 +237,9 @@
                                         </div>
                                         <div class="user-img d-flex align-items-center">
                                             <div class="avatar avatar-md">
-                                                <img src="{{ asset('assets') }}/compiled/jpg/1.jpg">
+
+                                                <img
+                                                    src="{{ Auth::user()->image ? asset('storage/' . Auth::user()->image) : asset('assets/compiled/jpg/1.jpg') }}">
                                             </div>
                                         </div>
                                     </div>
@@ -202,20 +249,15 @@
                                     <li>
                                         <h6 class="dropdown-header">Hello, John!</h6>
                                     </li>
-                                    <li><a class="dropdown-item" href="#"><i
-                                                class="icon-mid bi bi-person me-2"></i> My
-                                            Profile</a></li>
-                                    <li><a class="dropdown-item" href="#"><i
-                                                class="icon-mid bi bi-gear me-2"></i>
-                                            Settings</a></li>
-                                    <li><a class="dropdown-item" href="#"><i
-                                                class="icon-mid bi bi-wallet me-2"></i>
-                                            Wallet</a></li>
                                     <li>
-                                        <hr class="dropdown-divider">
+                                        <a class="dropdown-item" href="{{ route('profile.edit') }}">
+                                            <i class="icon-mid bi bi-person me-2"></i> My Profile
+                                        </a>
                                     </li>
-                                    <li><a class="dropdown-item" href="#"><i
-                                                class="icon-mid bi bi-box-arrow-left me-2"></i>
+
+                                    <hr class="dropdown-divider">
+                                    </li>
+                                    <li><a class="dropdown-item" href="#">
                                             <form action="{{ route('logout') }}" method="POST">
                                                 @csrf
                                                 <button class="dropdown-item" type="submit">
@@ -232,7 +274,6 @@
                 </nav>
             </header>
             <div id="main-content">
-
                 <div class="page-heading">
                     <div class="page-title">
                         <div class="row">
@@ -266,6 +307,83 @@
 
     <script src="{{ asset('assets') }}/compiled/js/app.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <SCript>
+        $(document).ready(function() {
+            $('#searchInput').on('input', function() {
+                let query = $(this).val();
+                if (query.length > 1) {
+                    $.ajax({
+                        url: '/search',
+                        method: 'GET',
+                        data: {
+                            search: query
+                        },
+                        success: function(data) {
+                            console.log(data);
+                            if (data.length > 0) {
+                                $('#resultsList').empty();
+                                data.forEach(item => {
+                                    if (item.type) {
+                                        $('#resultsList').append(
+                                            `<li class="list-group-item">
+                                        <a href="${item.path}" target="_blank"> <i class="bi bi-file-earmark"></i>${item.name}</a>
+                                    </li>`
+                                        );
+                                    } else {
+                                        $('#resultsList').append(
+                                            `<li class="list-group-item">
+                                        <a href="/folders/${item.id}"> <i class="bi bi-folder"></i> ${item.name}</a>
+                                    </li>`
+                                        );
+                                    }
+                                });
+                                $('#searchResults').show();
+                            } else {
+                                $('#resultsList').empty();
+                                $('#resultsList').append(
+                                    '<li class="list-group-item text-muted">No results found</li>'
+                                );
+                                $('#searchResults').show();
+                            }
+                        }
+                    });
+                } else {
+                    $('#searchResults').hide();
+                }
+            });
+
+            $(document).click(function(e) {
+                if (!$(e.target).closest('.search-bar').length) {
+                    $('#searchResults').hide();
+                }
+            });
+        });
+    </SCript>
+    <script>
+        $(document).ready(function() {
+            $('.notification-item a').on('click', function(event) {
+                event.preventDefault();
+                const url = $(this).attr('href');
+                $.ajax({
+                    url: '{{ route('notifications.markAsRead') }}',
+                    method: 'POST',
+                    data: {
+                        _token: '{{ csrf_token() }}'
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            window.location.href = url;
+                        } else {
+                            console.error('Failed to mark notifications as read');
+                        }
+                    },
+                    error: function() {
+                        console.error('Error while marking notifications as read');
+                    }
+                });
+            });
+        });
+    </script>
     <script>
         const maxRam = 2048;
         const ramProgressBar = document.getElementById('ramProgressBar');

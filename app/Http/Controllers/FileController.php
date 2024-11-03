@@ -7,6 +7,7 @@ use App\Models\File;
 use App\Models\FileShare;
 use App\Models\Folder;
 use App\Models\User;
+use App\Notifications\FileSharedNotification;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use RecursiveDirectoryIterator;
@@ -33,11 +34,20 @@ class FileController extends Controller
             'folder_id' => 'nullable|exists:folders,id',
         ]);
 
+        $user = Auth::user();
+        $fileSize = $request->file('file')->getSize() / (1024 * 1024); 
+        $usedSpace = $user->calculateDiskSpace();
+        $maxSpace = $user->disk_space;
+
+        if (($usedSpace + $fileSize) > $maxSpace) {
+            return back()->withErrors(['message' => 'Upload failed: Disk space limit exceeded.']);
+        }
+
         if ($request->type === 'folder') {
             $folder = new Folder();
             $folder->name = $request->name;
             $folder->user_id = Auth::user()->id;
-            $folder->department_id = Auth::user()->pegawai->department_id;
+            $folder->department_id = Auth::user()->pegawai->department_id ?? 1;
             $folder->parent_id = $request->folder_id;
             $folder->save();
         }
@@ -70,7 +80,7 @@ class FileController extends Controller
                     $file->type = $uploadedFile->getClientMimeType();
                     $file->size = $fileSize;
                     $file->user_id = Auth::user()->id;
-                    $file->department_id = Auth::user()->pegawai->department_id;
+                    $file->department_id = Auth::user()->pegawai->department_id ?? 1;
                     $file->folder_id = $request->folder_id;
 
                     $file->save();
@@ -192,11 +202,22 @@ class FileController extends Controller
         $sharedWithId = $request->input('shared_with_id');
         $permission = $request->input('permission', 'view');
 
+        $sharedWithUser = User::find($sharedWithId);
+
+        if (!$sharedWithUser) {
+            return response()->json(['success' => false, 'message' => 'User not found.'], 404);
+        }
+
         foreach ($fileIds as $fileId) {
             FileShare::updateOrCreate(
                 ['file_id' => $fileId, 'shared_with_id' => $sharedWithId],
                 ['permission' => $permission]
             );
+
+            $file = File::find($fileId);
+            if ($file) {
+                $sharedWithUser->notify(new FileSharedNotification($file->name, Auth::user()->name));
+            }
         }
 
         foreach ($folderIds as $folderId) {
@@ -204,9 +225,13 @@ class FileController extends Controller
                 ['folder_id' => $folderId, 'shared_with_id' => $sharedWithId],
                 ['permission' => $permission]
             );
+
+            $folder = Folder::find($folderId);
+            if ($folder) {
+                $sharedWithUser->notify(new FileSharedNotification($folder->name, Auth::user()->name));
+            }
         }
 
         return response()->json(['success' => true, 'message' => 'Items shared successfully.']);
     }
-
 }
