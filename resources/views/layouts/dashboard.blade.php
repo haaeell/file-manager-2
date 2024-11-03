@@ -174,7 +174,7 @@
                             <i class="bi bi-justify fs-3"></i>
                         </a>
                         <div class="search-bar ms-auto me-3 position-relative">
-                            <input type="text" id="searchInput" class="form-control"
+                            <input type="text" id="searchInput" class="form-control p-2 rounded-4"
                                 placeholder="Search files or folders...">
                             <div id="searchResults" class="position-absolute w-100 bg-white border"
                                 style="z-index: 1000; display: none;">
