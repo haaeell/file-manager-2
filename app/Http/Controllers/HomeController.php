@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Department;
 use App\Models\File;
+use App\Models\FileCategory;
 use App\Models\FileShare;
 use App\Models\Folder;
 use App\Models\User;
@@ -21,9 +23,11 @@ class HomeController extends Controller
         $folders = Folder::where('user_id', Auth::user()->id)->where('parent_id', null)->get();
 
         $files = File::where('user_id', $userId)->where('folder_id', null)->get();
-        $users = User::with('pegawai')->get();
+        $categories = FileCategory::all();
+        $users = User::with('pegawai')->where('role', '!=', 'admin')->get();
+        
 
-        return view('home', compact('folders', 'files', 'users'));
+        return view('home', compact('folders', 'files', 'users', 'categories'));
     }
 
     public function sharedByMe()
@@ -129,5 +133,28 @@ class HomeController extends Controller
         $user->unreadNotifications->markAsRead();
 
         return response()->json(['success' => true]);
+    }
+
+    public function favorites()
+    {
+        $fileFavorites = File::where('user_id', Auth::id())
+            ->where('is_favorite', true)
+            ->get();
+        $folderFavorites = Folder::where('user_id', Auth::id())
+            ->where('is_favorite', true)
+            ->get();
+
+        return view('favorites.index', compact('fileFavorites', 'folderFavorites'));
+    }
+    public function departemenFiles($id)
+    {
+        $folders = Folder::where('department_id', $id)->get();
+        $files = File::where('department_id', $id)->get();
+        $departmentName = Department::find($id)->name;
+        $departmentId = Department::find($id)->id;
+        $users = User::with('pegawai')->where('role', '!=', 'admin')->get();
+        $categories = FileCategory::all();
+
+        return view('departemen-files', compact('files', 'folders', 'users', 'departmentName', 'categories', 'departmentId'));
     }
 }

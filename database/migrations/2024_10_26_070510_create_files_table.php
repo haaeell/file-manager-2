@@ -15,7 +15,8 @@ return new class extends Migration
             $table->id();
             $table->foreignId('folder_id')->nullable()->constrained('folders')->onDelete('cascade');
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
-            $table->foreignId('department_id')->constrained('departments')->onDelete('cascade');
+            $table->foreignId('department_id')->nullable()->constrained('departments')->onDelete('cascade');
+            $table->foreignId('file_category_id')->nullable()->constrained('file_categories')->onDelete('cascade');
             $table->string('name');
             $table->string('path');
             $table->string('type');

@@ -18,7 +18,8 @@ class File extends Model
         'path',
         'type',
         'size',
-        'favorite',
+        'is_favorite',
+        'file_category_id',
     ];
 
     public function folder()
@@ -34,5 +35,10 @@ class File extends Model
     public function department()
     {
         return $this->belongsTo(Department::class);
+    }
+
+    public function category()
+    {
+        return $this->belongsTo(FileCategory::class, 'file_category_id');
     }
 }

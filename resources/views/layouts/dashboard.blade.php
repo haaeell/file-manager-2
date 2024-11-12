@@ -15,6 +15,7 @@
         type="image/png">
     <link rel="stylesheet" crossorigin href="{{ asset('assets') }}/compiled/css/app.css">
     <link rel="stylesheet" crossorigin href="{{ asset('assets') }}/compiled/css/app-dark.css">
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 </head>
 <style>
     .ram-usage {
@@ -100,41 +101,72 @@
                 </div>
                 <div class="sidebar-menu">
                     <ul class="menu">
-                        <li class="sidebar-title">Menu</li>
+                        @if (Auth::user()->role == 'admin')
+                            <li class="sidebar-title">MENU</li>
 
-                        <li class="sidebar-item {{ request()->routeIs('home') ? 'active' : '' }}">
-                            <a href="/home" class="sidebar-link">
-                                <i class="bi bi-folder"></i>
-                                <span>My Files</span>
-                            </a>
-                        </li>
+                            <li class="sidebar-item {{ request()->routeIs('dashboard') ? 'active' : '' }}">
+                                <a href="/dashboard" class="sidebar-link">
+                                    <i class="bi bi-folder"></i>
+                                    <span>Dashboard</span>
+                                </a>
+                            </li>
+                        @endif
+                        @if (Auth::user()->role != 'admin')
+                            <li class="sidebar-title">Menu</li>
 
-                        <li class="sidebar-item {{ request()->routeIs('sharedWithMe') ? 'active' : '' }}">
-                            <a href="{{ route('sharedWithMe') }}" class="sidebar-link">
-                                <i class="bi bi-people"></i>
-                                <span>Shared With Me</span>
-                            </a>
-                        </li>
+                            <li class="sidebar-item {{ request()->routeIs('home') ? 'active' : '' }}">
+                                <a href="/home" class="sidebar-link">
+                                    <i class="bi bi-folder"></i>
+                                    <span>My Files</span>
+                                </a>
+                            </li>
+                            <li class="sidebar-item {{ request()->routeIs('departemen-files') ? 'active' : '' }}">
+                                <a href="/departemen-files/{{ Auth::user()->pegawai->department_id }}"
+                                    class="sidebar-link">
+                                    <i class="bi bi-folder"></i>
+                                    <span>Departement Files</span>
+                                </a>
+                            </li>
 
-                        <li class="sidebar-item {{ request()->routeIs('sharedByMe') ? 'active' : '' }}">
-                            <a href="{{ route('sharedByMe') }}" class="sidebar-link">
-                                <i class="bi bi-share"></i>
-                                <span>Shared By Me</span>
-                            </a>
-                        </li>
+                            <li class="sidebar-item {{ request()->routeIs('sharedWithMe') ? 'active' : '' }}">
+                                <a href="{{ route('sharedWithMe') }}" class="sidebar-link">
+                                    <i class="bi bi-people"></i>
+                                    <span>Shared With Me</span>
+                                </a>
+                            </li>
 
-                        <li class="sidebar-item {{ request()->routeIs('trash') ? 'active' : '' }}">
-                            <a href="{{ route('trash') }}" class="sidebar-link">
-                                <i class="bi bi-trash"></i>
-                                <span>Trash</span>
-                            </a>
-                        </li>
+                            <li class="sidebar-item {{ request()->routeIs('sharedByMe') ? 'active' : '' }}">
+                                <a href="{{ route('sharedByMe') }}" class="sidebar-link">
+                                    <i class="bi bi-share"></i>
+                                    <span>Shared By Me</span>
+                                </a>
+                            </li>
 
+                            <li class="sidebar-item {{ request()->routeIs('trash') ? 'active' : '' }}">
+                                <a href="{{ route('trash') }}" class="sidebar-link">
+                                    <i class="bi bi-trash"></i>
+                                    <span>Trash</span>
+                                </a>
+                            </li>
+
+                            <li class="sidebar-item {{ request()->routeIs('favorites') ? 'active' : '' }}">
+                                <a href="{{ route('favorites') }}" class="sidebar-link">
+                                    <i class="bi bi-star"></i>
+                                    <span>Favorites</span>
+                                </a>
+                            </li>
+                        @endif
                         @if (Auth::user()->role == 'admin')
                             <li class="sidebar-item {{ request()->routeIs('departments.*') ? 'active' : '' }}">
                                 <a href="{{ route('departments.index') }}" class="sidebar-link">
                                     <i class="bi bi-building"></i>
                                     <span>Departments</span>
+                                </a>
+                            </li>
+                            <li class="sidebar-item {{ request()->routeIs('file-categories.*') ? 'active' : '' }}">
+                                <a href="{{ route('file-categories.index') }}" class="sidebar-link">
+                                    <i class="bi bi-folder"></i>
+                                    <span>File Categories</span>
                                 </a>
                             </li>
 
@@ -307,6 +339,7 @@
 
     <script src="{{ asset('assets') }}/compiled/js/app.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <SCript>
         $(document).ready(function() {
             $('#searchInput').on('input', function() {

@@ -58,6 +58,11 @@
         const fileType = $(this).data('type');
         const fileUrl = $(this).data('url');
 
+        console.log(fileUrl);
+        console.log(fileType);
+        console.log(fileSize);
+        console.log(fileName);
+
         $('#modalFileInfo').text(`Name: ${fileName}, Size: ${fileSize}`);
 
         if (fileType.startsWith('image/')) {

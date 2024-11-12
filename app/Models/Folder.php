@@ -15,6 +15,7 @@ class Folder extends Model
         'user_id',
         'department_id',
         'parent_id',
+        'is_favorite',
     ];
 
     public function parent()
@@ -25,5 +26,10 @@ class Folder extends Model
     public function subfolders()
     {
         return $this->hasMany(Folder::class, 'parent_id');
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
     }
 }

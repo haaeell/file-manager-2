@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\File;
+use App\Models\FileCategory;
 use App\Models\FileShare;
 use App\Models\Folder;
 use App\Models\User;
@@ -35,24 +36,24 @@ class FileController extends Controller
         ]);
 
         $user = Auth::user();
-        $fileSize = $request->file('file')->getSize() / (1024 * 1024); 
-        $usedSpace = $user->calculateDiskSpace();
-        $maxSpace = $user->disk_space;
 
-        if (($usedSpace + $fileSize) > $maxSpace) {
-            return back()->withErrors(['message' => 'Upload failed: Disk space limit exceeded.']);
-        }
 
         if ($request->type === 'folder') {
             $folder = new Folder();
             $folder->name = $request->name;
             $folder->user_id = Auth::user()->id;
-            $folder->department_id = Auth::user()->pegawai->department_id ?? 1;
             $folder->parent_id = $request->folder_id;
             $folder->save();
         }
 
         if ($request->type === 'file') {
+            $fileSize = $request->file('file')->getSize() / (1024 * 1024);
+            $usedSpace = $user->calculateDiskSpace();
+            $maxSpace = $user->disk_space;
+
+            if (($usedSpace + $fileSize) > $maxSpace) {
+                return back()->withErrors(['message' => 'Upload failed: Disk space limit exceeded.']);
+            }
             if ($request->hasFile('file')) {
                 $uploadedFile = $request->file('file');
 
@@ -80,9 +81,9 @@ class FileController extends Controller
                     $file->type = $uploadedFile->getClientMimeType();
                     $file->size = $fileSize;
                     $file->user_id = Auth::user()->id;
-                    $file->department_id = Auth::user()->pegawai->department_id ?? 1;
                     $file->folder_id = $request->folder_id;
-
+                    $file->file_category_id = $request->category_id;
+                    $file->department_id =  $request->department_id ?? null;
                     $file->save();
                 } else {
                     return redirect()->back()->withErrors(['File tidak valid atau sudah dihapus.']);
@@ -108,9 +109,10 @@ class FileController extends Controller
 
         $subfolders = $folder ? $folder->subfolders : Folder::whereNull('parent_id')->get();
         $files = File::where('user_id', Auth::user()->id)->where('folder_id', $folder->id ?? null)->get();
-        $users = User::with('pegawai')->get();
+        $users = User::with('pegawai')->where('role', '!=', 'admin')->get();
+        $categories = FileCategory::all();
 
-        return view('folder.show', compact('folder', 'breadcrumbs', 'subfolders', 'files', 'users'));
+        return view('folder.show', compact('folder', 'breadcrumbs', 'subfolders', 'files', 'users', 'categories'));
     }
 
     public function rename(Request $request)
@@ -199,36 +201,63 @@ class FileController extends Controller
     {
         $fileIds = $request->input('file_ids', []);
         $folderIds = $request->input('folder_ids', []);
-        $sharedWithId = $request->input('shared_with_id');
+        $sharedWithIds = $request->input('shared_with_ids', []);
         $permission = $request->input('permission', 'view');
 
-        $sharedWithUser = User::find($sharedWithId);
+        $sharedWithUsers = User::whereIn('id', $sharedWithIds)->get();
 
-        if (!$sharedWithUser) {
-            return response()->json(['success' => false, 'message' => 'User not found.'], 404);
+        if ($sharedWithUsers->isEmpty()) {
+            return response()->json(['success' => false, 'message' => 'Users not found.'], 404);
         }
 
         foreach ($fileIds as $fileId) {
-            FileShare::updateOrCreate(
-                ['file_id' => $fileId, 'shared_with_id' => $sharedWithId],
-                ['permission' => $permission]
-            );
+            foreach ($sharedWithUsers as $sharedWithUser) {
+                $existingShare = FileShare::where('file_id', $fileId)
+                    ->where('shared_with_id', $sharedWithUser->id)
+                    ->exists();
 
-            $file = File::find($fileId);
-            if ($file) {
-                $sharedWithUser->notify(new FileSharedNotification($file->name, Auth::user()->name));
+                if ($existingShare) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'File sudah dibagikan ke ' . $sharedWithUser->name
+                    ], 400);
+                }
+
+                FileShare::updateOrCreate(
+                    ['file_id' => $fileId, 'shared_with_id' => $sharedWithUser->id],
+                    ['permission' => $permission]
+                );
+
+                $file = File::find($fileId);
+                if ($file) {
+                    $sharedWithUser->notify(new FileSharedNotification($file->name, Auth::user()->name));
+                }
             }
         }
 
         foreach ($folderIds as $folderId) {
-            FileShare::updateOrCreate(
-                ['folder_id' => $folderId, 'shared_with_id' => $sharedWithId],
-                ['permission' => $permission]
-            );
+            foreach ($sharedWithUsers as $sharedWithUser) {
 
-            $folder = Folder::find($folderId);
-            if ($folder) {
-                $sharedWithUser->notify(new FileSharedNotification($folder->name, Auth::user()->name));
+                $existingShare = FileShare::where('folder_id', $folderId)
+                    ->where('shared_with_id', $sharedWithUser->id)
+                    ->exists();
+
+                if ($existingShare) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Folder sudah dibagikan ke ' . $sharedWithUser->name
+                    ], 400); 
+                }
+
+                FileShare::updateOrCreate(
+                    ['folder_id' => $folderId, 'shared_with_id' => $sharedWithUser->id],
+                    ['permission' => $permission]
+                );
+
+                $folder = Folder::find($folderId);
+                if ($folder) {
+                    $sharedWithUser->notify(new FileSharedNotification($folder->name, Auth::user()->name));
+                }
             }
         }
 
