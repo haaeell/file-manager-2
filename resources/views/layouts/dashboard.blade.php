@@ -417,21 +417,6 @@
             });
         });
     </script>
-    <script>
-        const maxRam = 2048;
-        const ramProgressBar = document.getElementById('ramProgressBar');
-
-        function updateRamUsage() {
-            const usedRam = Math.floor(Math.random() * maxRam);
-            const usedRamPercentage = (usedRam / maxRam) * 100;
-
-            ramProgressBar.style.width = usedRamPercentage + '%';
-            ramProgressBar.setAttribute('aria-valuenow', usedRamPercentage);
-            ramProgressBar.textContent = usedRam + ' MB';
-        }
-
-        setInterval(updateRamUsage, 1000);
-    </script>
     @if ($errors->any())
         <script>
             let errorMessages = '';
