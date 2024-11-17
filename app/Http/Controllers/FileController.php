@@ -200,7 +200,7 @@ class FileController extends Controller
     public function shareItems(Request $request)
     {
         $fileIds = $request->input('file_ids', []);
-        $folderIds = $request->input('folder_ids', []);
+        $folderIds = $request->input('folder_ids', []); 
         $sharedWithIds = $request->input('shared_with_ids', []);
         $permission = $request->input('permission', 'view');
 

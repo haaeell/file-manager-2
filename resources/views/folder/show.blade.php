@@ -10,7 +10,9 @@
                     <!-- Breadcrumb -->
                     <nav aria-label="breadcrumb">
                         <ol class="breadcrumb">
-                            <li class="breadcrumb-item"><a href="/">My Files</a></li>
+                            @if (Auth::user()->role != 'admin')
+                                <li class="breadcrumb-item"><a href="/">My Files</a></li>
+                            @endif
                             @foreach ($breadcrumbs as $breadcrumb)
                                 <li class="breadcrumb-item">
                                     <a
@@ -23,18 +25,21 @@
                 <div class="card-body">
                     <!-- Tombol Tambah, Share, Download, Delete -->
                     <div class="d-flex gap-2 justify-content-between">
-                        <div>
-                            <button class="btn btn-primary fw-bold text-white" data-bs-toggle="modal"
-                                data-bs-target="#addFolderModal">
-                                <i class="bi bi-plus"></i> Tambah
-                            </button>
-                        </div>
-                        <div>
-                            <button class="btn btn-info fw-bold text-white"><i class="bi bi-folder"></i> Share</button>
-                            <button class="btn btn-success fw-bold text-white"><i class="bi bi-download"></i>
-                                Download</button>
-                            <button class="btn btn-danger fw-bold text-white"><i class="bi bi-trash"></i> Delete</button>
-                        </div>
+                        @if (Auth::user()->role != 'admin')
+                            <div>
+                                <button class="btn btn-primary fw-bold text-white" data-bs-toggle="modal"
+                                    data-bs-target="#addFolderModal">
+                                    <i class="bi bi-plus"></i> Tambah
+                                </button>
+                            </div>
+                            <div>
+                                <button class="btn btn-info fw-bold text-white"><i class="bi bi-folder"></i> Share</button>
+                                <button class="btn btn-success fw-bold text-white"><i class="bi bi-download"></i>
+                                    Download</button>
+                                <button class="btn btn-danger fw-bold text-white"><i class="bi bi-trash"></i>
+                                    Delete</button>
+                            </div>
+                        @endif
                     </div>
                     <!-- Table Files & Folders -->
                     <table class="table">
@@ -52,15 +57,17 @@
                                 <tr class="folder-row-select" data-id="{{ $folder->id }}">
                                     <th>
                                         <div class="d-flex align-items-center gap-2">
-                                            <input type="checkbox" class="form-check-input item-checkbox"
-                                                data-id="{{ $folder->id }}">
-                                            <a href="#" class="toggle-favorite" data-id="{{ $folder->id }}"
-                                                data-type="folder">
-                                                <i
-                                                    class="bi {{ $folder->is_favorite ? 'bi-star-fill text-warning' : 'bi-star text-muted' }}"></i>
-                                            </a>
-                                            <a href="#"><i class="bi bi-pencil-fill text-primary rename-icon"
-                                                    data-id="{{ $folder->id }}" data-type="folder"></i></a>
+                                            @if (Auth::user()->role != 'admin')
+                                                <input type="checkbox" class="form-check-input item-checkbox"
+                                                    data-id="{{ $folder->id }}">
+                                                <a href="#" class="toggle-favorite" data-id="{{ $folder->id }}"
+                                                    data-type="folder">
+                                                    <i
+                                                        class="bi {{ $folder->is_favorite ? 'bi-star-fill text-warning' : 'bi-star text-muted' }}"></i>
+                                                </a>
+                                                <a href="#"><i class="bi bi-pencil-fill text-primary rename-icon"
+                                                        data-id="{{ $folder->id }}" data-type="folder"></i></a>
+                                            @endif
                                         </div>
                                     </th>
                                     <td><i class="bi bi-folder-fill"></i> <a
@@ -94,7 +101,7 @@
                                     </td>
                                     <td>{{ $file->type }}</td>
                                     <td>{{ number_format($file->size / 1024, 2) }} KB</td>
-                                    <td>{{  \Carbon\Carbon::parse($file->created_at)->format('d F Y, H:i')}}</td>
+                                    <td>{{ \Carbon\Carbon::parse($file->created_at)->format('d F Y, H:i') }}</td>
                                 </tr>
                             @endforeach
                         </tbody>

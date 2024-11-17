@@ -222,42 +222,44 @@
                         <div class="collapse navbar-collapse" id="navbarSupportedContent">
 
                             <ul class="navbar-nav ms-auto mb-lg-0">
-                                <li class="nav-item dropdown me-3">
-                                    <a class="nav-link active dropdown-toggle text-gray-600" href="#"
-                                        data-bs-toggle="dropdown" data-bs-display="static" aria-expanded="false">
-                                        <i class='bi bi-bell bi-sub fs-4'></i>
-                                        @if (Auth::user()->unreadNotifications->count() > 0)
-                                            <span class="badge badge-notification bg-danger">
-                                                {{ Auth::user()->unreadNotifications->count() }}
-                                            </span>
-                                        @endif
-                                    </a>
-                                    <ul class="dropdown-menu dropdown-center dropdown-menu-sm-end notification-dropdown"
-                                        aria-labelledby="dropdownMenuButton">
-                                        <li class="dropdown-header">
-                                            <h6>Notifications</h6>
-                                        </li>
-                                        @forelse (Auth::user()->unreadNotifications as $notification)
-                                            <li class="dropdown-item notification-item">
-                                                <a class="d-flex align-items-center" href="/shared-with-me">
-                                                    <div class="notification-icon bg-primary">
-                                                        <i class="bi bi-share"></i>
-                                                    </div>
-                                                    <div class="notification-text ms-4">
-                                                        <p class="notification-title font-bold">
-                                                            {{ $notification->data['message'] }}</p>
-                                                        <small
-                                                            class="text-muted">{{ $notification->created_at->diffForHumans() }}</small>
-                                                    </div>
-                                                </a>
+                                @if (Auth::user()->role != 'admin')
+                                    <li class="nav-item dropdown me-3">
+                                        <a class="nav-link active dropdown-toggle text-gray-600" href="#"
+                                            data-bs-toggle="dropdown" data-bs-display="static" aria-expanded="false">
+                                            <i class='bi bi-bell bi-sub fs-4'></i>
+                                            @if (Auth::user()->unreadNotifications->count() > 0)
+                                                <span class="badge badge-notification bg-danger">
+                                                    {{ Auth::user()->unreadNotifications->count() }}
+                                                </span>
+                                            @endif
+                                        </a>
+                                        <ul class="dropdown-menu dropdown-center dropdown-menu-sm-end notification-dropdown"
+                                            aria-labelledby="dropdownMenuButton">
+                                            <li class="dropdown-header">
+                                                <h6>Notifications</h6>
                                             </li>
-                                        @empty
-                                            <li class="dropdown-item text-center">
-                                                <p class="text-muted">No new notifications</p>
-                                            </li>
-                                        @endforelse
-                                    </ul>
-                                </li>
+                                            @forelse (Auth::user()->unreadNotifications as $notification)
+                                                <li class="dropdown-item notification-item">
+                                                    <a class="d-flex align-items-center" href="/shared-with-me">
+                                                        <div class="notification-icon bg-primary">
+                                                            <i class="bi bi-share"></i>
+                                                        </div>
+                                                        <div class="notification-text ms-4">
+                                                            <p class="notification-title font-bold">
+                                                                {{ $notification->data['message'] }}</p>
+                                                            <small
+                                                                class="text-muted">{{ $notification->created_at->diffForHumans() }}</small>
+                                                        </div>
+                                                    </a>
+                                                </li>
+                                            @empty
+                                                <li class="dropdown-item text-center">
+                                                    <p class="text-muted">No new notifications</p>
+                                                </li>
+                                            @endforelse
+                                        </ul>
+                                    </li>
+                                @endif
                             </ul>
 
                             <div class="dropdown">
@@ -279,7 +281,7 @@
                                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton"
                                     style="min-width: 11rem;">
                                     <li>
-                                        <h6 class="dropdown-header">Hello, John!</h6>
+                                        <h6 class="dropdown-header">Hello, {{ Auth::user()->name }}!</h6>
                                     </li>
                                     <li>
                                         <a class="dropdown-item" href="{{ route('profile.edit') }}">
