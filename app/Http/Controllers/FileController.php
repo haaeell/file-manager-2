@@ -43,6 +43,7 @@ class FileController extends Controller
             $folder->name = $request->name;
             $folder->user_id = Auth::user()->id;
             $folder->parent_id = $request->folder_id;
+            $folder->department_id =  $request->department_id ?? null;
             $folder->save();
         }
 

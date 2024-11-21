@@ -25,7 +25,7 @@ class HomeController extends Controller
         $files = File::where('user_id', $userId)->where('folder_id', null)->get();
         $categories = FileCategory::all();
         $users = User::with('pegawai')->where('role', '!=', 'admin')->get();
-        
+
 
         return view('home', compact('folders', 'files', 'users', 'categories'));
     }
@@ -94,8 +94,10 @@ class HomeController extends Controller
     {
         $query = $request->input('search');
         $userId = Auth::id();
+        $departmenId = Auth::user()->pegawai->departmen_id;
 
         $fileResults = File::where('user_id', $userId)
+            ->orWhere('department_id', $departmenId)
             ->where(function ($q) use ($query) {
                 $q->where('name', 'LIKE', '%' . $query . '%')
                     ->orWhere('type', 'LIKE', '%' . $query . '%');
@@ -103,6 +105,7 @@ class HomeController extends Controller
             ->get(['id', 'name', 'type', 'user_id', 'path']);
 
         $folderResults = Folder::where('user_id', $userId)
+            ->orWhere('department_id', $departmenId)
             ->where('name', 'LIKE', '%' . $query . '%')
             ->get(['id', 'name', 'user_id']);
 

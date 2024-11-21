@@ -15,6 +15,7 @@
                                 <th>Name</th>
                                 <th>Type</th>
                                 <th>Shared At</th>
+                                <th>Shared To</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -49,6 +50,7 @@
                                         @endif
                                     </td>
                                     <td>{{ \Carbon\Carbon::parse($item->created_at)->format('d F Y, H:i') }}</td>
+                                    <td>{{ $item->sharedWith->name }}</td>
                                 </tr>
                             @endforeach
                         </tbody>
