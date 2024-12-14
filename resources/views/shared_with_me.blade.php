@@ -15,7 +15,7 @@
                                 <th>Name</th>
                                 <th>Type</th>
                                 <th>Shared At</th>
-                                <th>Shared To</th>
+                                <th>Shared By</th>
                             </tr>
                         </thead>
                         <tbody>

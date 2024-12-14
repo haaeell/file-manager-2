@@ -205,14 +205,16 @@
                         <a href="#" class="burger-btn d-block">
                             <i class="bi bi-justify fs-3"></i>
                         </a>
-                        <div class="search-bar ms-auto me-3 position-relative">
-                            <input type="text" id="searchInput" class="form-control p-2 rounded-4"
-                                placeholder="Search files or folders...">
-                            <div id="searchResults" class="position-absolute w-100 bg-white border"
-                                style="z-index: 1000; display: none;">
-                                <ul class="list-group" id="resultsList"></ul>
+                        @if (Auth::user()->role != 'admin')
+                            <div class="search-bar ms-auto me-3 position-relative">
+                                <input type="text" id="searchInput" class="form-control p-2 rounded-4"
+                                    placeholder="Search files or folders...">
+                                <div id="searchResults" class="position-absolute w-100 bg-white border"
+                                    style="z-index: 1000; display: none;">
+                                    <ul class="list-group" id="resultsList"></ul>
+                                </div>
                             </div>
-                        </div>
+                        @endif
 
                         <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
                             data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
@@ -342,46 +344,60 @@
     <script src="{{ asset('assets') }}/compiled/js/app.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-    <SCript>
+    <script>
         $(document).ready(function() {
+            let allData = []; // Menyimpan semua data yang diambil dari backend
+
+            // Ambil semua data dari server
+            $.ajax({
+                url: '/search',
+                method: 'GET',
+                success: function(data) {
+                    allData = data;
+                    console.log(allData);
+                }
+            });
+
+            // Fungsi untuk mencari berdasarkan input pengguna
             $('#searchInput').on('input', function() {
-                let query = $(this).val();
+                let query = $(this).val().toLowerCase(); // Menyaring input menjadi huruf kecil
                 if (query.length > 1) {
-                    $.ajax({
-                        url: '/search',
-                        method: 'GET',
-                        data: {
-                            search: query
-                        },
-                        success: function(data) {
-                            console.log(data);
-                            if (data.length > 0) {
-                                $('#resultsList').empty();
-                                data.forEach(item => {
-                                    if (item.type) {
-                                        $('#resultsList').append(
-                                            `<li class="list-group-item">
-                                        <a href="${item.path}" target="_blank"> <i class="bi bi-file-earmark"></i>${item.name}</a>
-                                    </li>`
-                                        );
-                                    } else {
-                                        $('#resultsList').append(
-                                            `<li class="list-group-item">
-                                        <a href="/folders/${item.id}"> <i class="bi bi-folder"></i> ${item.name}</a>
-                                    </li>`
-                                        );
-                                    }
-                                });
-                                $('#searchResults').show();
-                            } else {
-                                $('#resultsList').empty();
-                                $('#resultsList').append(
-                                    '<li class="list-group-item text-muted">No results found</li>'
-                                );
-                                $('#searchResults').show();
-                            }
-                        }
+                    // Filter data yang sesuai dengan query
+                    let filteredData = allData.filter(item => {
+                        return item.name.toLowerCase().includes(query) ||
+                            item.type?.toLowerCase().includes(
+                            query); // Menambahkan filter berdasarkan nama atau type
                     });
+
+                    // Update hasil pencarian
+                    $('#resultsList').empty();
+                    if (filteredData.length > 0) {
+                        filteredData.forEach(item => {
+                            if (item.type) {
+                                $('#resultsList').append(
+                                    `<li class="list-group-item">
+                                <a href="${item.path}" target="_blank"> 
+                                    <i class="bi bi-file-earmark"></i>${item.name}
+                                </a>
+                            </li>`
+                                );
+                            } else {
+                                $('#resultsList').append(
+                                    `<li class="list-group-item">
+                                <a href="/folders/${item.id}"> 
+                                    <i class="bi bi-folder"></i> ${item.name}
+                                </a>
+                            </li>`
+                                );
+                            }
+                        });
+                        $('#searchResults').show();
+                    } else {
+                        $('#resultsList').append(
+                            '<li class="list-group-item text-muted">No results found</li>'
+                        );
+                        $('#searchResults').show();
+                    }
                 } else {
                     $('#searchResults').hide();
                 }
@@ -393,7 +409,7 @@
                 }
             });
         });
-    </SCript>
+    </script>
     <script>
         $(document).ready(function() {
             $('.notification-item a').on('click', function(event) {

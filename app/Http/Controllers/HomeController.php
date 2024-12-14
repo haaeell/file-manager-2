@@ -7,6 +7,7 @@ use App\Models\File;
 use App\Models\FileCategory;
 use App\Models\FileShare;
 use App\Models\Folder;
+use App\Models\Pegawai;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -89,46 +90,44 @@ class HomeController extends Controller
 
         return response()->json(['success' => true, 'message' => 'Item deleted permanently.']);
     }
-
-    public function search(Request $request)
+    public function search()
     {
-        $query = $request->input('search');
-        $userId = Auth::id();
-        $departmenId = Auth::user()->pegawai->departmen_id;
+        // Mengambil ID User yang sedang login
+        $userId = Auth::user()->id;
 
-        $fileResults = File::where('user_id', $userId)
-            ->orWhere('department_id', $departmenId)
-            ->where(function ($q) use ($query) {
-                $q->where('name', 'LIKE', '%' . $query . '%')
-                    ->orWhere('type', 'LIKE', '%' . $query . '%');
-            })
-            ->get(['id', 'name', 'type', 'user_id', 'path']);
+        // Mengambil semua file yang dimiliki oleh User yang sedang login
+        $fileResults = File::where('user_id', $userId)->get(['id', 'name', 'type', 'path']);
 
-        $folderResults = Folder::where('user_id', $userId)
-            ->orWhere('department_id', $departmenId)
-            ->where('name', 'LIKE', '%' . $query . '%')
-            ->get(['id', 'name', 'user_id']);
+        // Mengambil semua folder yang dimiliki oleh User yang sedang login
+        $folderResults = Folder::where('user_id', $userId)->get(['id', 'name']);
 
+        // Mengambil semua file yang dibagikan kepada User
         $sharedFiles = FileShare::with('file')
             ->where('shared_with_id', $userId)
-            ->whereHas('file', function ($q) use ($query) {
-                $q->where('name', 'LIKE', '%' . $query . '%');
-            })
             ->get()
+            ->filter(function ($fileShare) {
+                // Pastikan 'file' tidak null
+                return $fileShare->file !== null;
+            })
             ->pluck('file');
 
+        // Mengambil semua folder yang dibagikan kepada User
         $sharedFolders = FileShare::with('folder')
             ->where('shared_with_id', $userId)
-            ->whereHas('folder', function ($q) use ($query) {
-                $q->where('name', 'LIKE', '%' . $query . '%');
-            })
             ->get()
+            ->filter(function ($fileShare) {
+                // Pastikan 'folder' tidak null
+                return $fileShare->folder !== null;
+            })
             ->pluck('folder');
 
+        // Gabungkan hasil pencarian file, folder, dan file serta folder yang dibagikan
         $results = $fileResults->merge($folderResults)->merge($sharedFiles)->merge($sharedFolders);
 
+        // Return semua data yang ditemukan
         return response()->json($results);
     }
+
 
     public function markAsRead(Request $request)
     {
