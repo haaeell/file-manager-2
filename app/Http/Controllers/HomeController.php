@@ -92,39 +92,29 @@ class HomeController extends Controller
     }
     public function search()
     {
-        // Mengambil ID User yang sedang login
         $userId = Auth::user()->id;
+        $departmentId =  Pegawai::where('id', Auth::user()->pegawai_id)->first()->department_id;
+        $fileResults = File::where('user_id', $userId)->orWhere('department_id', $departmentId)->get(['id', 'name', 'type', 'path']);
+        $folderResults = Folder::where('user_id', $userId)->orWhere('department_id', $departmentId)->get(['id', 'name']);
 
-        // Mengambil semua file yang dimiliki oleh User yang sedang login
-        $fileResults = File::where('user_id', $userId)->get(['id', 'name', 'type', 'path']);
-
-        // Mengambil semua folder yang dimiliki oleh User yang sedang login
-        $folderResults = Folder::where('user_id', $userId)->get(['id', 'name']);
-
-        // Mengambil semua file yang dibagikan kepada User
         $sharedFiles = FileShare::with('file')
             ->where('shared_with_id', $userId)
             ->get()
             ->filter(function ($fileShare) {
-                // Pastikan 'file' tidak null
                 return $fileShare->file !== null;
             })
             ->pluck('file');
 
-        // Mengambil semua folder yang dibagikan kepada User
         $sharedFolders = FileShare::with('folder')
             ->where('shared_with_id', $userId)
             ->get()
             ->filter(function ($fileShare) {
-                // Pastikan 'folder' tidak null
                 return $fileShare->folder !== null;
             })
             ->pluck('folder');
 
-        // Gabungkan hasil pencarian file, folder, dan file serta folder yang dibagikan
         $results = $fileResults->merge($folderResults)->merge($sharedFiles)->merge($sharedFolders);
 
-        // Return semua data yang ditemukan
         return response()->json($results);
     }
 

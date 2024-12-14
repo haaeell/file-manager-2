@@ -39,7 +39,8 @@
                                                 data-url="{{ asset($item->file->path) }}">{{ $item->file->name }}</a>
                                         @elseif ($item->folder)
                                             <i class="bi bi-folder-fill"></i>
-                                             <a href="{{ route('showFolder', ['id' => $item->folder->id]) }}">{{ $item->folder->name }}</a>
+                                            <a
+                                                href="{{ route('showFolder', ['id' => $item->folder->id]) }}">{{ $item->folder->name }}</a>
                                         @endif
                                     </td>
                                     <td>
@@ -50,7 +51,11 @@
                                         @endif
                                     </td>
                                     <td>{{ \Carbon\Carbon::parse($item->created_at)->format('d F Y, H:i') }}</td>
-                                    <td>{{ $item->sharedWith->name }}</td>
+                                    @if ($item->file)
+                                        <td>{{ $item->file->user->name }}</td>
+                                    @elseif ($item->folder)
+                                        <td>{{ $item->folder->user->name }}</td>
+                                    @endif
                                 </tr>
                             @endforeach
                         </tbody>
