@@ -16,6 +16,7 @@ class Pegawai extends Model
         'phone_number',
         'address',
         'position',
+        'image',
     ];
 
     public function department()

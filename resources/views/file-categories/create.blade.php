@@ -5,7 +5,7 @@
 @section('content')
     <div class="card">
         <div class="card-header">
-            <h4>Create Department</h4>
+            <h4>Create Category</h4>
         </div>
         <div class="card-body">
             <form action="{{ route('file-categories.store') }}" method="POST">
