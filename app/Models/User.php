@@ -26,6 +26,11 @@ class User extends Authenticatable
     {
         return $this->hasOne(Pegawai::class, 'id', 'pegawai_id');
     }
+//     public function pegawai()
+// {
+//     return $this->hasOne(Pegawai::class); // Relasi One-to-One
+// }
+
 
     protected $hidden = [
         'password',

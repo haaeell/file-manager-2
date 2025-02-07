@@ -15,6 +15,7 @@ class Pegawai extends Model
         'department_id',
         'phone_number',
         'address',
+        'no_pegawai',
         'position',
         'image',
     ];

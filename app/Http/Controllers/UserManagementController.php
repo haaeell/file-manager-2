@@ -38,6 +38,7 @@ class UserManagementController extends Controller
             'phone_number' => $request->input('phone_number', ''),
             'address' => $request->input('address', ''),
             'position' => $request->input('position', ''),
+            'no_pegawai' => $request->input('no_pegawai', ''),
         ]);
 
         User::create([
@@ -71,7 +72,7 @@ class UserManagementController extends Controller
         $user->update([
             'name' => $request->input('name'),
             'email' => $request->input('email'),
-            'disk_space' => $request->input('disk_space') ,
+            'disk_space' => $request->input('disk_space'),
         ]);
 
         $user->pegawai->update([
@@ -80,6 +81,7 @@ class UserManagementController extends Controller
             'phone_number' => $request->input('phone_number'),
             'address' => $request->input('address'),
             'position' => $request->input('position'),
+            'no_pegawai' => $request->input('no_pegawai'),
         ]);
         return redirect()->route('userManagement')->with('success', 'User updated successfully.');
     }

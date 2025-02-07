@@ -376,7 +376,7 @@
                             if (item.type) {
                                 $('#resultsList').append(
                                     `<li class="list-group-item">
-                                <a href="${item.path}" target="_blank"> 
+                                <a href="/${item.path}" target="_blank"> 
                                     <i class="bi bi-file-earmark"></i>${item.name}
                                 </a>
                             </li>`

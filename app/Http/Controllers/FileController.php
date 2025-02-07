@@ -95,8 +95,9 @@ class FileController extends Controller
         return redirect()->back()->with('success', 'Folder atau file berhasil ditambahkan.');
     }
 
-    public function showFolder($id = null)
+    public function showFolder($id = null, Request $request)
     {
+        $search = $request->input('search');
         $folder = $id ? Folder::findOrFail($id) : null;
         $breadcrumbs = [];
 
@@ -109,7 +110,7 @@ class FileController extends Controller
         }
 
         $subfolders = $folder ? $folder->subfolders : Folder::whereNull('parent_id')->get();
-        $files = File::where('user_id', Auth::user()->id)->where('folder_id', $folder->id ?? null)->get();
+        $files = File::where('folder_id', $folder->id ?? null)->get();
         $users = User::with('pegawai')->where('role', '!=', 'admin')->get();
         $categories = FileCategory::all();
 
@@ -123,12 +124,20 @@ class FileController extends Controller
             'type' => 'required|string|in:folder,file',
             'new_name' => 'required|string|max:255',
         ]);
-
         if ($request->type === 'folder') {
+            $checkUserFolder = Folder::where('id', $request->id)->where('user_id', Auth::user()->id)->exists();
+
+            if (!$checkUserFolder) {
+                return redirect()->back()->with(['success' => false, 'message' => 'Anda tidak memiliki akses untuk menghapus file atau folder ini!.'], 401);
+            }
             $folder = Folder::findOrFail($request->id);
             $folder->name = $request->new_name;
             $folder->save();
         } elseif ($request->type === 'file') {
+            $checkUserFile = File::where('id', $request->id)->where('user_id', Auth::user()->id)->exists();
+            if (!$checkUserFile) {
+                return redirect()->back()->with('error', 'Anda tidak memiliki akses untuk menghapus file atau folder ini!.');
+            }
             $file = File::findOrFail($request->id);
             $file->name = $request->new_name;
             $file->save();
@@ -187,6 +196,13 @@ class FileController extends Controller
     {
         $fileIds = $request->input('file_ids', []);
         $folderIds = $request->input('folder_ids', []);
+
+        $checkUserFile = File::whereIn('id', $fileIds)->where('user_id', Auth::user()->id)->exists();
+        $checkUserFolder = Folder::whereIn('id', $folderIds)->where('user_id', Auth::user()->id)->exists();
+
+        if (!$checkUserFile || !$checkUserFolder) {
+            return response()->json(['success' => false, 'message' => 'Anda tidak memiliki akses untuk menghapus file atau folder ini!.'], 401);
+        }
         if (!empty($fileIds)) {
             File::whereIn('id', $fileIds)->delete();
         }
@@ -201,7 +217,7 @@ class FileController extends Controller
     public function shareItems(Request $request)
     {
         $fileIds = $request->input('file_ids', []);
-        $folderIds = $request->input('folder_ids', []); 
+        $folderIds = $request->input('folder_ids', []);
         $sharedWithIds = $request->input('shared_with_ids', []);
         $permission = $request->input('permission', 'view');
 
@@ -247,7 +263,7 @@ class FileController extends Controller
                     return response()->json([
                         'success' => false,
                         'message' => 'Folder sudah dibagikan ke ' . $sharedWithUser->name
-                    ], 400); 
+                    ], 400);
                 }
 
                 FileShare::updateOrCreate(

@@ -31,6 +31,10 @@
                     </select>
                 </div>
                 <div class="mb-3">
+                    <label for="no_pegawai" class="form-label">No Pegawai</label>
+                    <input type="no_pegawai" name="no_pegawai" class="form-control" id="no_pegawai" required>
+                </div>
+                <div class="mb-3">
                     <label for="disk_space" class="form-label">Disk Space (MB)</label>
                     <input type="number" name="disk_space" class="form-control" id="disk_space" required min="0" placeholder="Enter maximum disk space in MB">
                 </div>
