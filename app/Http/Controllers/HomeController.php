@@ -18,12 +18,24 @@ class HomeController extends Controller
     {
         $this->middleware('auth');
     }
-    public function index()
+    public function index(Request $request)
     {
         $userId = auth()->id();
-        $folders = Folder::where('user_id', Auth::user()->id)->where('parent_id', null)->get();
+        $folderQuery = Folder::where('user_id', Auth::user()->id)->where('parent_id', null);
 
-        $files = File::where('user_id', $userId)->where('folder_id', null)->get();
+        $filesQuery = File::where('user_id', $userId)->whereNull('folder_id');
+
+        if ($request->has('kategori') && $request->kategori != '') {
+            $filesQuery->where('file_category_id', $request->kategori);
+        }
+
+        if ($request->has('date') && $request->date != '') {
+            $filesQuery->whereDate('created_at', $request->date);
+            $folderQuery->whereDate('created_at', $request->date);
+        }
+
+        $files = $filesQuery->get();
+        $files = $filesQuery->get();
         $categories = FileCategory::all();
         $users = User::with('pegawai')->where('role', '!=', 'admin')->get();
 
