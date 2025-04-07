@@ -74,4 +74,56 @@
     </div>
 
     @include('partials.show_file_modal')
+
+
+<script>
+    document.querySelectorAll('.update-permission').forEach(select => {
+        select.addEventListener('change', function () {
+            const id = this.dataset.id;
+            const newPermission = this.value;
+
+            console.log(`Updating permission for item ID ${id} to ${newPermission}`);
+
+            fetch(`/shared-items/${id}/permission`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({ permission: newPermission })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    swal.fire({
+                        icon: 'success',
+                        title: 'Permission Updated',
+                        text: `Permission updated to ${newPermission} successfully!`,
+                        showConfirmButton: true,
+                        timer: 1500
+                    });
+                } else {
+                    swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Failed to update permission.',
+                        showConfirmButton: true,
+                        timer: 1500
+                    });
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'An error occurred while updating permission.',
+                    showConfirmButton: true,
+                    timer: 1500
+                });
+            });
+        });
+    });
+</script>
 @endsection
+

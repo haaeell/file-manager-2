@@ -38,6 +38,8 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/toggle-favorite', [FileController::class, 'toggleFavorite'])->name('toggleFavorite');
     Route::get('/download-folder/{id}', [FileController::class, 'downloadFolder'])->name('downloadFolder');
     Route::post('/delete-items', [FileController::class, 'deleteItems'])->name('deleteItems');
+    Route::post('/shared-items/{id}/permission', [FileController::class, 'updatePermission']);
+
     Route::delete('/fileShare/{id}', [FileController::class, 'destroyfileShare'])->name('fileShare.delete');
 
     Route::post('/share-items', [FileController::class, 'shareItems'])->name('shareItems');
