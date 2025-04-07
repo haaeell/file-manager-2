@@ -135,13 +135,14 @@
                                 @endforeach
                             </select>
                         </div>
-                        {{-- <div class="mb-3">
-                            <label for="selectUser" class="form-label">Pilih Hak Akses</label>
-                            <select id="permission" class="form-control" width="100%" required>
-                                <option value="view">Lihat</option>
-                                <option value="delete">Hapus</option>
+                        <div class="mb-3">
+                            <label for="permission" class="form-label">Pilih Hak Akses</label>
+                            <select id="permission" class="form-control" required>
+                                <option value="view">View Only</option>
+                                <option value="delete">Can Delete</option>
+                                <option value="full">Full Access</option>
                             </select>
-                        </div> --}}
+                        </div>
                         <button type="button" class="btn btn-primary" id="shareSubmitBtn">Share</button>
                     </form>
                 </div>

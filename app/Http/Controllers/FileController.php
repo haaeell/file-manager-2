@@ -214,6 +214,30 @@ class FileController extends Controller
         return response()->json(['success' => true, 'message' => 'Items deleted successfully.']);
     }
 
+    public function destroyFileShare($id)
+    {
+        $fileShare = FileShare::where('file_id', $id)
+            ->where('shared_with_id', auth()->id())
+            ->first();
+
+        if (!$fileShare) {
+            abort(403, 'Kamu tidak punya akses untuk menghapus file ini.');
+        }
+
+        $file = $fileShare->file;
+
+        if ($file && file_exists(public_path($file->path))) {
+            unlink(public_path($file->path));
+        }
+        if ($file) {
+            $file->delete();
+        }
+
+        $fileShare->delete();
+
+        return redirect()->back()->with('success', 'File dan data share berhasil dihapus.');
+    }
+
     public function shareItems(Request $request)
     {
         $fileIds = $request->input('file_ids', []);
@@ -279,5 +303,14 @@ class FileController extends Controller
         }
 
         return response()->json(['success' => true, 'message' => 'Items shared successfully.']);
+    }
+
+    public function updatePermission(Request $request, $id)
+    {
+        $item = FileShare::findOrFail($id);
+        $item->permission = $request->permission;
+        $item->save();
+
+        return response()->json(['success' => true]);
     }
 }

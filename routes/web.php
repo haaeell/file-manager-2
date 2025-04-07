@@ -38,6 +38,8 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/toggle-favorite', [FileController::class, 'toggleFavorite'])->name('toggleFavorite');
     Route::get('/download-folder/{id}', [FileController::class, 'downloadFolder'])->name('downloadFolder');
     Route::post('/delete-items', [FileController::class, 'deleteItems'])->name('deleteItems');
+    Route::delete('/fileShare/{id}', [FileController::class, 'destroyfileShare'])->name('fileShare.delete');
+
     Route::post('/share-items', [FileController::class, 'shareItems'])->name('shareItems');
 
     Route::get('/shared-by-me', [HomeController::class, 'sharedByMe'])->name('sharedByMe');
@@ -62,4 +64,6 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/profile/password', [UserProfileController::class, 'updatePassword'])->name('profile.updatePassword');
     Route::get('/favorites', [HomeController::class, 'favorites'])->name('favorites');
     Route::get('/departemen-files/{id}', [HomeController::class, 'departemenFiles'])->name('departemen-files');
+
+    Route::post('/shared-items/{id}/permission', [FileController::class, 'updatePermission']);
 });

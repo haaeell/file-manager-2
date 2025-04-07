@@ -14,6 +14,7 @@
                                 <th>#</th>
                                 <th>Name</th>
                                 <th>Type</th>
+                                <th>Permission</th>
                                 <th>Shared At</th>
                                 <th>Shared To</th>
                             </tr>
@@ -49,6 +50,18 @@
                                             <span class="badge bg-warning">Folder</span>
                                         @endif
                                     </td>
+                                    <td>
+                                        <select class="form-select form-select-sm update-permission"
+                                            data-id="{{ $item->id }}">
+                                            <option value="view" {{ $item->permission === 'view' ? 'selected' : '' }}>
+                                                View Only</option>
+                                            <option value="delete" {{ $item->permission === 'delete' ? 'selected' : '' }}>
+                                                Can Delete</option>
+                                            <option value="full" {{ $item->permission === 'full' ? 'selected' : '' }}>
+                                                Full Access</option>
+                                        </select>
+                                    </td>
+
                                     <td>{{ \Carbon\Carbon::parse($item->created_at)->format('d F Y, H:i') }}</td>
                                     <td>{{ $item->sharedWith->name }}</td>
                                 </tr>

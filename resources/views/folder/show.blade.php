@@ -135,6 +135,14 @@
                                 @endforeach
                             </select>
                         </div>
+                        <div class="mb-3">
+                            <label for="permission" class="form-label">Pilih Hak Akses</label>
+                            <select id="permission" class="form-control" required>
+                                <option value="view">View Only</option>
+                                <option value="delete">Can Delete</option>
+                                <option value="full">Full Access</option>
+                            </select>
+                        </div>
                         <button type="button" class="btn btn-primary" id="shareSubmitBtn">Share</button>
                     </form>
                 </div>

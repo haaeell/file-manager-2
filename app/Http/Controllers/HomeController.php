@@ -35,7 +35,7 @@ class HomeController extends Controller
         }
 
         $files = $filesQuery->get();
-        $files = $filesQuery->get();
+        $folders = $folderQuery->get();
         $categories = FileCategory::all();
         $users = User::with('pegawai')->where('role', '!=', 'admin')->get();
 
