@@ -197,12 +197,13 @@ class FileController extends Controller
         $fileIds = $request->input('file_ids', []);
         $folderIds = $request->input('folder_ids', []);
 
-        $checkUserFile = File::whereIn('id', $fileIds)->where('user_id', Auth::user()->id)->exists();
-        $checkUserFolder = Folder::whereIn('id', $folderIds)->where('user_id', Auth::user()->id)->exists();
+        // $checkUserFile = File::whereIn('id', $fileIds)->where('user_id', Auth::user()->id)->exists();
+        // $checkUserFolder = Folder::whereIn('id', $folderIds)->where('user_id', Auth::user()->id)->exists();
 
-        if (!$checkUserFile || !$checkUserFolder) {
-            return response()->json(['success' => false, 'message' => 'Anda tidak memiliki akses untuk menghapus file atau folder ini!.'], 401);
-        }
+        // if (!$checkUserFile || !$checkUserFolder) {
+        //     return response()->json(['success' => false, 'message' => 'Anda tidak memiliki akses untuk menghapus file atau folder ini!.'], 401);
+        // }
+        
         if (!empty($fileIds)) {
             File::whereIn('id', $fileIds)->delete();
         }

@@ -37,7 +37,7 @@
                             <button id="downloadBtn" class="btn btn-success fw-bold text-white">
                                 <i class="bi bi-download"></i> Download
                             </button>
-                            <button class="btn btn-danger btn-delete fw-bold text-white"><i class="bi bi-trash"></i>
+                            <button class="btn btn-danger btn-delete fw-bold text-white" type="button"><i class="bi bi-trash"></i>
                                 Delete</button>
                         </div>
                     </div>
@@ -259,6 +259,7 @@
             });
 
             $('.btn-danger').on('click', function() {
+                event.preventDefault(); 
                 const selectedFileIds = [];
                 const selectedFolderIds = [];
 
