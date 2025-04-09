@@ -316,10 +316,11 @@
                                     confirmButtonText: 'OK'
                                 }).then(() => location.reload());
                             },
-                            error: function() {
+                            error: function(response) {
+                                console.error(response.responseJSON.message);
                                 Swal.fire({
                                     title: 'Error!',
-                                    text: 'An error occurred while deleting items.',
+                                    text: response.responseJSON.message,
                                     icon: 'error',
                                     confirmButtonText: 'OK'
                                 });

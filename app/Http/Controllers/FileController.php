@@ -196,24 +196,46 @@ class FileController extends Controller
     {
         $fileIds = $request->input('file_ids', []);
         $folderIds = $request->input('folder_ids', []);
-
-        // $checkUserFile = File::whereIn('id', $fileIds)->where('user_id', Auth::user()->id)->exists();
-        // $checkUserFolder = Folder::whereIn('id', $folderIds)->where('user_id', Auth::user()->id)->exists();
-
-        // if (!$checkUserFile || !$checkUserFolder) {
-        //     return response()->json(['success' => false, 'message' => 'Anda tidak memiliki akses untuk menghapus file atau folder ini!.'], 401);
-        // }
-        
+        $userId = Auth::id();
+    
+        // Cek file (kalau ada yang dikirim)
         if (!empty($fileIds)) {
+            $validFileCount = File::whereIn('id', $fileIds)
+                ->where('user_id', $userId)
+                ->count();
+    
+            if ($validFileCount !== count($fileIds)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Ada file yang bukan milik Anda!',
+                ], 401);
+            }
+    
             File::whereIn('id', $fileIds)->delete();
         }
-
+    
+        // Cek folder (kalau ada yang dikirim)
         if (!empty($folderIds)) {
+            $validFolderCount = Folder::whereIn('id', $folderIds)
+                ->where('user_id', $userId)
+                ->count();
+    
+            if ($validFolderCount !== count($folderIds)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Ada folder yang bukan milik Anda!',
+                ], 401);
+            }
+    
             Folder::whereIn('id', $folderIds)->delete();
         }
-
-        return response()->json(['success' => true, 'message' => 'Items deleted successfully.']);
+    
+        return response()->json([
+            'success' => true,
+            'message' => 'Items deleted successfully.',
+        ]);
     }
+    
 
     public function destroyFileShare($id)
     {
